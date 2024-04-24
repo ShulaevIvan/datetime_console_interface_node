@@ -4,25 +4,60 @@
 const yargs = require('yargs/yargs');
 const { hideBin } = require('yargs/helpers');
 
+const addSubDateFunc = (argvObj, param='add') => {
+    const parametrs = [
+        { key: 'year',  alias: 'y', func: () => {
+            const value = Object.values(argvObj).filter((value) => !isNaN(value))[0];
+            const currentDate = new Date();
+            const targetYear = param === 'sub' ? 
+                new Date(currentDate.setFullYear(currentDate.getFullYear() - value)).toISOString() :
+                    new Date(currentDate.setFullYear(currentDate.getFullYear() + value)).toISOString();
+
+            return console.log(targetYear);
+        } },
+        { key: 'month', alias: 'm', func: () => {
+            const value = Object.values(argvObj).filter((value) => !isNaN(value))[0];
+            const currentDate = new Date();
+            const targetMonth = param === 'sub' ? 
+                new Date(currentDate.setMonth(currentDate.getMonth() - value)).toISOString() : 
+                    (new Date(currentDate.setMonth(currentDate.getMonth() + value)).toISOString());
+
+            return console.log(targetMonth);
+        } },
+        { key: 'date', alias: 'd', func: () => {
+            const value = Object.values(argvObj).filter((value) => !isNaN(value))[0];
+            const currentDate = new Date();
+            const targetDate = param === 'sub' ?
+                new Date(currentDate.setDate(currentDate.getDate() - value)).toISOString() :
+                    new Date(currentDate.setDate(currentDate.getDate() + value)).toISOString();;
+
+            return console.log(targetDate);
+        }}
+    ];
+    const targetParam = parametrs.find((param) => argvObj[param.key]);
+    if (!targetParam) return console.log('syntax error')
+    targetParam.func();
+}
+
 yargs(hideBin(process.argv))
 .command({
     command: 'current',
-    describe: 'описание',
+    describe: 'display current date; keys: [-y, --year, -m, --month, -d --date];',
     builder: (yargs) => {
         return (yargs
             .option('year', {
                 alias: 'y',
-                describe: 'описание year',
+                describe: 'current year',
                 type: 'boolean',
             })
             .option('month', {
                 alias: 'm',
-                describe: 'описание month',
+                describe: 'current month',
                 type: 'boolean',
             })
             .option('date', {
                 alias: 'd',
-                describe: 'описание date',
+                describe: 'current date',
                 type: 'boolean',
             })
         )
@@ -40,53 +75,67 @@ yargs(hideBin(process.argv))
 })
 .command({
     command: 'add',
-    describe: 'описание',
+    describe: 'display future date; keys: [-y, --year, -m, --month, -d --date]',
     builder: (yargs) => {
         return (yargs
             .option('year', {
                 alias: 'y',
-                describe: 'описание year',
+                describe: 'next (number) year to ISO format',
                 type: 'number',
             })
             .option('month', {
                 alias: 'm',
-                describe: 'описание month',
-                type: 'boolean',
+                describe: 'next (number) month to ISO format',
+                type: 'number',
             })
             .option('date', {
                 alias: 'd',
-                describe: 'описание date',
-                type: 'boolean',
+                describe: 'next (number) date to ISO format',
+                type: 'number',
             })
         )
     },
     handler: (argv) => {
-        console.log('2');
+        const parametrs = [
+            { key: 'year',  alias: 'y', func: () => addSubDateFunc(argv, 'add')},
+            { key: 'month', alias: 'm', func: () => addSubDateFunc(argv, 'add')},
+            { key: 'date', alias: 'd', func: () => addSubDateFunc(argv, 'add')}
+        ];
+        const targetParam = parametrs.find((param) => argv[param.key]);
+        if (!targetParam) return console.log('syntax error');
+        targetParam.func();
     }
 })
 .command({
     command: 'sub',
-    describe: 'описание',
+    describe: 'display prev date; keys: [-y, --year, -m, --month, -d --date]',
     builder: (yargs) => {
         return (yargs
             .option('year', {
                 alias: 'y',
-                describe: 'описание year',
-                type: 'boolean',
+                describe: 'prev (number) year to ISO format',
+                type: 'number'
             })
             .option('month', {
                 alias: 'm',
-                describe: 'описание month',
-                type: 'boolean',
+                describe: 'prev (number) month to ISO format',
+                type: 'number',
             })
             .option('date', {
                 alias: 'd',
-                describe: 'описание date',
-                type: 'boolean',
+                describe: 'prev (number) date to ISO format',
+                type: 'number',
             })
         )
     },
     handler: (argv) => {
-        console.log('2');
+        const parametrs = [
+            { key: 'year',  alias: 'y', func: () => addSubDateFunc(argv, 'sub')},
+            { key: 'month', alias: 'm', func: () => addSubDateFunc(argv, 'sub')},
+            { key: 'date', alias: 'd', func: () => addSubDateFunc(argv, 'sub')}
+        ];
+        const targetParam = parametrs.find((param) => argv[param.key]);
+        if (!targetParam) return console.log('syntax error')
+        targetParam.func();
     }
-}).strict().parse();
+}).help().strict().parse();
